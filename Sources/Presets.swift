@@ -22,11 +22,23 @@ func conflict(_ code: Int, _ mods: Int, excluding row: Int? = nil, checkMain: Bo
     }
     return nil
 }
+var presetSnap: (win: AXUIElement, region: NSRect, pos: CGPoint, size: CGSize)?   // so pressing the same preset again moves on a display
 func applyPreset(_ p: Preset) {
     guard let win = pickTarget() else { return }
-    if let o = axFrame(win) { lastSnap = (win, o.0, o.1) }
-    applyFrame(win, screenFrame(fraction: NSRect(x: p.x, y: p.y, width: p.w, height: p.h), on: screenOf(win)))
+    let region = NSRect(x: p.x, y: p.y, width: p.w, height: p.h), now = axFrame(win)
+    var screen = screenOf(win)
+    if let s = presetSnap, let now, CFEqual(s.win, win), s.region == region,
+       abs(now.0.x - s.pos.x) <= 2, abs(now.0.y - s.pos.y) <= 2, abs(now.1.width - s.size.width) <= 2, abs(now.1.height - s.size.height) <= 2 {
+        screen = nextScreen(after: screen)
+    }
+    if let now { lastSnap = (win, now.0, now.1) }
+    applyFrame(win, screenFrame(fraction: region, on: screen))
+    presetSnap = axFrame(win).map { (win, region, $0.0, $0.1) }
     remember(win)
+}
+func nextScreen(after s: NSScreen) -> NSScreen {   // left to right, top to bottom, wrapping
+    let all = NSScreen.screens.sorted { ($0.frame.minX, -$0.frame.maxY) < ($1.frame.minX, -$1.frame.maxY) }
+    return all[((all.firstIndex(of: s) ?? -1) + 1) % all.count]
 }
 func alert(_ text: String) { let a = NSAlert(); a.messageText = text; a.runModal() }
 

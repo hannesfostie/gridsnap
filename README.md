@@ -50,6 +50,7 @@ open /Applications/GridSnap.app
 | Dismiss | Click anywhere outside the grid |
 | Save a preset | Hold Shift when releasing, or use **+** in Settings |
 | Apply a preset | Its shortcut, or the Presets menu |
+| Move to the next display | Press the preset's shortcut again |
 | Undo last snap | ⌃⌥Z by default, press again to redo |
 
 The grid appears on the display under the cursor and the window snaps to that display, so moving the mouse to another monitor before pressing the shortcut moves the window there. Presets snap to the display the window is already on.
